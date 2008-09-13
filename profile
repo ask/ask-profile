@@ -2,7 +2,7 @@
 # ask@0x61736b.net
 
 LivingProfilePrefix="$HOME/.living-profile"
-LivingShellProfile="$LivingProfilePrefix/shell"
+LivingShellProfile="$LivingProfilePrefix/bash/boot"
 
 throw() {
     printf "ERROR: $1\n" >/dev/stderr
@@ -11,6 +11,26 @@ throw() {
 warn() {
     printf "WARNING: $1\n" >/dev/stderr
 }
+
+unshift_manpath () {
+    new_manpath="$1"
+    # Add the path into $PATH if it doesn't already exist.
+    echo $MANPATH | grep -q -s "$new_manpath"
+    if [ $? -eq 1 ]; then
+        MANPATH="$new_manpath":"$MANPATH"
+    fi
+    export MANPATH
+}
+unshift_path () {
+    new_path="$1"
+    # Add the path into $PATH if it doesn't already exist.
+    echo $PATH | grep -q -s "$new_path"
+    if [ $? -eq 1 ]; then
+        PATH="$new_path":"$PATH"
+    fi
+    export PATH
+}
+
 
 lp_exec_action() {
     action=$1
@@ -122,27 +142,27 @@ export LOCALE="en_GB.UTF-8"
 export LC_ALL=$LOCALE
 
 # PATH
-PATH="/opt/bleadperl/bin:$PATH"
-PATH="/Developer/Tools:$PATH"
-PATH="/usr/local/bin:/usr/local/sbin:$PATH"
-PATH="/Applications:$PATH"
+unshift_path "/opt/bleadperl/bin"
+unshift_path "/Developer/Tools"
+unshift_path "/usr/local/bin"
+unshift_path "/usr/local/sbin"
+unshift_path "/Applications"
 for sbin_dir in /opt/*/sbin; do
-    PATH="$sbin_dir:$PATH"
+    unshift_path "$sbin_dir"
 done
 for bin_dir  in /opt/*/bin;  do
-    PATH="$bin_dir:$PATH"
+    unshift_path "$bin_dir"
 done
 
-PATH=$PATH:/usr/local/mysql/bin
-PATH=$PATH:/usr/local/BerkeleyDB.4.5/bin/
+unshift_path "/usr/local/mysql/bin"
+unshift_path "/usr/local/BerkeleyDB.4.5/bin"
 export PATH;
 
 # MANPATH
 for man_dir  in /opt/*/man;  do
-    MANPATH="$man_dir:$MANPATH"
+    unshift_manpath "$man_dir"
 done
-MANPATH=$MANPATH:/opt/lighttpd/share/man
-export MANPATH
+unshift_manpath "/opt/lighttpd/share/man"
 
 # ENVIRONMENT
 
@@ -173,8 +193,7 @@ export PS1='$USER@${HOSTNAME:-localhost}:$PWD\$> '
 
 # ALIASES
 
-alias vim='mvim'
-alias ls='/opt/local/bin/ls --color -F -h'
+#alias ls='/opt/local/bin/ls --color -F -h'
 alias psa='ps auxww'
 alias grepi='grep -i'
 alias egrepi='grep -Ei'
@@ -188,7 +207,7 @@ export MITSCHEME_LIBRARY_PATH=/opt/local/lib/mit-scheme
 
 # Delete duplicate PATH components.
 PATH=`
-    perl -E'for(split m/:/,shift){push@_,$_ if!$s{$_}++};say join":",@_' "$PATH"
+    perl -le'for(split m/:/,shift){push@_,$_ if!$s{$_}++};print join":",@_' "$PATH"
 `;
 export PATH
 
@@ -207,8 +226,7 @@ echo
 
 # ### INITIALIZE ENVIRONMENT
 
-export PATH="/bin:/usr/bin:/usr/local/bin:~/bin:${PATH}"
-#export MANPATH="/usr/share/man"
+#export PATH="/bin:/usr/bin:/usr/local/bin:~/bin:${PATH}"
 
 # #### GO CREATE CUSTOM ENVIRONMENT
 
@@ -218,11 +236,14 @@ export PATH="/bin:/usr/bin:/usr/local/bin:~/bin:${PATH}"
 
 # Setting PATH for MacPython 2.5
 # The orginal version is saved in .profile.pysave
-PATH="/Library/Frameworks/Python.framework/Versions/Current/bin:${PATH}"
-export PATH
+unshift_path "/Library/Frameworks/Python.framework/Versions/Current/bin"
 
 # Common LISP
-#export PATH="/opt/lisp/bin:$PATH"
+unshift_path "/opt/lisp/bin"
+
+# git
+unshift_path "/opt/git/bin"
+
 
 ##
 # DELUXE-USR-LOCAL-BIN-INSERT
@@ -235,18 +256,9 @@ export PATH
 #fi
 
 # ### Currently selected Perl first!
-export PATH="/opt/perl/bin/perl:$PATH"
+unshift_path "/opt/perl/bin/perl"
 
 alias boa='python'
 alias suroot='sudo su -l -'
 
 export EMAIL="ask@0x61736b.net"
-
-##
-# Your previous /Users/ask/.profile file was backed up as /Users/ask/.profile.mpsaved_2008-07-30_at_19:47:58
-##
-
-# MacPorts setting on 2008-07-30 at 19:47:58: adding an appropriate MANPATH variable for use with MacPorts.
-export MANPATH=/opt/local/share/man:$MANPATH
-# Finished adapting your MANPATH environment variable for use with MacPorts.
-
