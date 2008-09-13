@@ -18,7 +18,7 @@ write-stderr () {
 }
 
 println () {
-    print-screen "$*\n"
+    echo "$*\n"
 }
 
 return-value () {
@@ -150,13 +150,14 @@ is-integer () {
 }
 
 bullet () {
-    crest="\*"
-    level=$null
-    [ $(is-integer $1) ] && level=$1  && skip_first=true
-    [ "$1" == "+error" ] && crest='!' && skip_first=true
-    [ ${level:-0} != 0 ] && crest='-'
-    vals=$((test $skip_first && return-value `skip-first $*`) || return-value $*)
-    return-value $(join-array $crest $vals);
+    #crest="\*"
+    #level=$null
+    #[ $(is-integer $1) ] && level=$1  && skip_first=true
+    #[ "$1" == "+error" ] && crest='!' && skip_first=true
+    #[ ${level:-0} != 0 ] && crest='-'
+    #vals=$((test $skip_first && return-value `skip-first $*`) || return-value $*)
+    #return-value $(join-array $crest $vals);
+    return-value "[x]" $*
 }
    
 log-error () {
