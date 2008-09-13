@@ -193,7 +193,7 @@ export PS1='$USER@${HOSTNAME:-localhost}:$PWD\$> '
 
 # ALIASES
 
-#alias ls='/opt/local/bin/ls --color -F -h'
+alias ls='/opt/local/bin/ls --color -F -h'
 alias psa='ps auxww'
 alias grepi='grep -i'
 alias egrepi='grep -Ei'
