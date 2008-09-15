@@ -125,6 +125,7 @@ fi
 
 lp_exec_action IncludeSystemwideProfile
 lp_exec_action ViMode
+lp_exec_action AddUserBinToPath
 
 include_startup_script () {
     script="$1"
@@ -138,7 +139,7 @@ include_startup_script "$BASH_RC"
 
 # LOCALE
 
-export LOCALE="en_GB.UTF-8"
+export LOCALE="en_US.UTF-8"
 export LC_ALL=$LOCALE
 
 # PATH
@@ -164,11 +165,16 @@ for man_dir  in /opt/*/man;  do
 done
 unshift_manpath "/opt/lighttpd/share/man"
 
+for opt_app in apache2 intel; do 
+    unshift_path "/opt/$opt_app/bin"
+done
+
 # ENVIRONMENT
 
 # Use vim as the man pager.
 export MANPAGER="col -b | view -c 'set ft=man nomod nolist' -" 
 export EDITOR=vim
+export VISUAL="$EDITOR"
 export CVSROOT=/opt/CVS/
 export MODWHEEL_AUTHOR=1
 export GETOPTLL_AUTHOR=1
@@ -181,6 +187,9 @@ export CONFIG_PLCONFIG_AUTHOR=1
 export CLASSPLUGINUTIL_AUTHOR=1
 export ALIEN_CODEPRESS_AUTHOR=1
 export MODULE_BUILD_DEBIAN_AUTHOR=1
+export XWA_AUTHOR="Ask Solem"
+export XWA_AUTHOR_EMAIL="askh@opera.com"
+export MACOSX_DEPLOYMENT_TARGET=10.5
 
 if [ $IS_MAC_OS_X ]; then
     export MACOSX_DEPLOYMENT_TARGET="10.5"
@@ -191,6 +200,10 @@ fi
 HOSTNAME=$(hostname -s);
 export PS1='$USER@${HOSTNAME:-localhost}:$PWD\$> '
 
+# DEBIAN PACKAGE OPTIONS
+export DEBEMAIL="askh@opera.com"
+export DEBFULLNAME="Ask Solem"
+
 # ALIASES
 
 alias ls='/opt/local/bin/ls --color -F -h'
@@ -200,16 +213,33 @@ alias egrepi='grep -Ei'
 alias gps='ps auxww | grepi '
 alias metafoo='meta foo -ws 16'
 alias metaa='meta any -ws 16'
+alias svnprop='svn propset svn:keywords Id,Source,Author,HeadURL,Revision,Date'
+alias op='/opt/local/bin/gnome'
+alias make..='(cd ../; make)'
 alias lst='ls -t --reverse'
+alias boa='python'
+alias suroot='sudo su -l -'
+alias vim='mvim'
+alias svim='sudo vim'
+alias sapt='sudo apt-get install'
+alias saps='sudo apt-cache search'
+alias svi='svim'
+alias pws='gpg --decrypt /opt/void/pwd.gpg'
+alias s='sudo'
+alias pypan='env MACOSX_DEPLOYMENT_TARGET=10.5 easy_install'
+alias psyq='psyqueue'
+alias psyf='psyfetch'
+alias ptv='psyqueue tv'
+alias pxvid='psyqueue xvid'
+alias pmac='psyqueue mac'
+alias paudio='psyqueue audioiso'
+alias psample='psyqueue samplecd'
+alias lsd='ls -clr | grep $(date "+%Y-%m") | sort -k 6 -r'
+
 
 # MIT Scheme settings.
 export MITSCHEME_LIBRARY_PATH=/opt/local/lib/mit-scheme
 
-# Delete duplicate PATH components.
-PATH=`
-    perl -le'for(split m/:/,shift){push@_,$_ if!$s{$_}++};print join":",@_' "$PATH"
-`;
-export PATH
 
 export PERL5LIB="$PERL5LIB:/opt/devel/my:/opt/devel/core-mods"
 
@@ -226,14 +256,6 @@ echo
 
 # ### INITIALIZE ENVIRONMENT
 
-#export PATH="/bin:/usr/bin:/usr/local/bin:~/bin:${PATH}"
-
-# #### GO CREATE CUSTOM ENVIRONMENT
-
-# todo.sh
-#test -f /opt/local/bin/t -a -x /opt/local/bin/t && /opt/local/bin/t list
-#echo
-
 # Setting PATH for MacPython 2.5
 # The orginal version is saved in .profile.pysave
 unshift_path "/Library/Frameworks/Python.framework/Versions/Current/bin"
@@ -244,21 +266,60 @@ unshift_path "/opt/lisp/bin"
 # git
 unshift_path "/opt/git/bin"
 
+if [ ! $IS_MAC_OS_X ]; then
+    export DISPLAY=":0"
+fi
 
-##
-# DELUXE-USR-LOCAL-BIN-INSERT
-# (do not remove this comment)
-##
-#echo $PATH | grep -q -s "/usr/local/bin"
-#if [ $? -eq 1 ] ; then
-#    PATH=$PATH:/usr/local/bin
-#    export PATH
-#fi
+# Development Environment
+LIBPATHS="-L/opt/perl-5.10/lib -L/opt/postgres/lib -L/opt/local/lib -L/opt/mysql/lib -L/sw/lib"
+INCPATHS="-I/opt/local/include -I/opt/postgres/include -I/sw/include -I/opt/mysql/include"
+
+# BerkeleyDB
+LIBPATHS="-L/opt/BerkeleyDB/lib $LIBPATHS"
+INCPATHS="-I/opt/BerkeleyDB/include $INCPATHS"
+export PATH="/opt/BerkeleyDB/bin:$PATH"
+export LDFLAGS="$LIBPATHS"
+CFLAGS="-Os -sse3 -ssse3 -mtune=nocona"
+export CFLAGS="$LIBPATHS $INCPATHS $CFLAGS"
+
+## PostgreSQL
+export PGDATA="/opt/postgres/data"
+
+# MzScheme
+export PATH="/opt/mzscheme/bin:$PATH"
+export LDFLAGS="-L/opt/mzscheme/lib $LDFLAGS"
+export CFLAGS="-I/opt/mzscheme/include $CFLAGS"
+
+# Glascow Haskell Compiler
+export PATH="/opt/haskell/bin:$PATH"
+
+# MacTex
+export PATH="/opt/mactex/bin:$PATH"
+
+# Git
+export PATH="/opt/git/bin:$PATH"
+#
+
+if [ $IS_MAC_OS_X ]; then
+    # Build programs for these architectures
+    export ARCHFLAGS='-arch i386 -arch x86_64'
+fi
+
 
 # ### Currently selected Perl first!
 unshift_path "/opt/perl/bin/perl"
 
-alias boa='python'
-alias suroot='sudo su -l -'
-
 export EMAIL="ask@0x61736b.net"
+
+# git stuff
+export GIT_AUTHOR_NAME="Ask Solem"
+export GIT_AUTHOR_EMAIL="asksh@cpan.org"
+
+# IDA Pro
+export PATH+=":/opt/ida/bin"
+
+# Delete duplicate PATH components.
+PATH=`
+    perl -le'for(split m/:/,shift){push@_,$_ if!$s{$_}++};print join":",@_' "$PATH"
+`;
+export PATH
