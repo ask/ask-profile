@@ -1,6 +1,11 @@
 #!/bin/bash
 # ask@0x61736b.net
 
+# LOCALE
+
+export LOCALE=C
+export LC_ALL=$LOCALE
+
 LivingProfilePrefix="$HOME/.living-profile"
 LivingShellProfile="$LivingProfilePrefix/bash/boot"
 
@@ -137,10 +142,6 @@ include_startup_script () {
 include_startup_script "$BASH_PROFILE"
 include_startup_script "$BASH_RC"
 
-# LOCALE
-
-export LOCALE="en_US.UTF-8"
-export LC_ALL=$LOCALE
 
 # PATH
 unshift_path "/opt/bleadperl/bin"
