@@ -324,3 +324,5 @@ PATH=`
     perl -le'for(split m/:/,shift){push@_,$_ if!$s{$_}++};print join":",@_' "$PATH"
 `;
 export PATH
+
+. django-bash-completion
