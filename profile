@@ -144,6 +144,8 @@ include_startup_script "$BASH_RC"
 
 
 # PATH
+
+
 unshift_path "/opt/bleadperl/bin"
 unshift_path "/Developer/Tools"
 unshift_path "/usr/local/bin"
@@ -169,6 +171,7 @@ unshift_manpath "/opt/lighttpd/share/man"
 for opt_app in apache2 intel; do 
     unshift_path "/opt/$opt_app/bin"
 done
+
 
 # ENVIRONMENT
 
@@ -197,9 +200,10 @@ if [ $IS_MAC_OS_X ]; then
 fi
 
 # PROMPT
-
+source ~/.living-profile/git-completion.bash
 HOSTNAME=$(hostname -s);
-export PS1='$USER@${HOSTNAME:-localhost}:$PWD\$> '
+#export PS1='$USER@${HOSTNAME:-localhost}:$PWD\$> '
+export PS1='\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]$(__git_ps1 "(%s)")$> '
 
 # DEBIAN PACKAGE OPTIONS
 export DEBEMAIL="askh@opera.com"
@@ -220,11 +224,12 @@ alias make..='(cd ../; make)'
 alias lst='ls -t --reverse'
 alias boa='python'
 alias suroot='sudo su -l -'
-alias vim='mvim'
-alias svim='sudo vim'
+alias vim='macvim'
+alias svim='sudo \vim'
 alias sapt='sudo apt-get install'
 alias saps='sudo apt-cache search'
 alias svi='svim'
+alias vip='macvim --remote-tab'
 alias pws='gpg --decrypt /opt/void/pwd.gpg'
 alias s='sudo'
 alias pypan='env MACOSX_DEPLOYMENT_TARGET=10.5 easy_install'
@@ -257,9 +262,6 @@ echo
 
 # ### INITIALIZE ENVIRONMENT
 
-# Setting PATH for MacPython 2.5
-# The orginal version is saved in .profile.pysave
-unshift_path "/Library/Frameworks/Python.framework/Versions/Current/bin"
 
 # Common LISP
 unshift_path "/opt/lisp/bin"
@@ -275,7 +277,7 @@ fi
 LIBPATHS="-L/opt/perl-5.10/lib -L/opt/postgres/lib -L/opt/local/lib -L/opt/mysql/lib -L/sw/lib"
 INCPATHS="-I/opt/local/include -I/opt/postgres/include -I/sw/include -I/opt/mysql/include"
 
-# BerkeleyDB
+#/Library/Frameworks/Python.framework/Versions/Current/bin" BerkeleyDB
 LIBPATHS="-L/opt/BerkeleyDB/lib $LIBPATHS"
 INCPATHS="-I/opt/BerkeleyDB/include $INCPATHS"
 export PATH="/opt/BerkeleyDB/bin:$PATH"
@@ -314,15 +316,27 @@ export EMAIL="ask@0x61736b.net"
 
 # git stuff
 export GIT_AUTHOR_NAME="Ask Solem"
-export GIT_AUTHOR_EMAIL="asksh@cpan.org"
+export GIT_AUTHOR_EMAIL="askh@modwheel.net"
 
 # IDA Pro
 export PATH+=":/opt/ida/bin"
+
+
+##
+# DELUXE-USR-LOCAL-BIN-INSERT
+# (do not remove this comment)
+##
+#echo $PATH | grep -q -s "/usr/local/bin"
+#if [ $? -eq 1 ] ; then
+#    PATH=$PATH:/usr/local/bin
+#    export PATH
+#fi
+
+# Python
+unshift_path "/Library/Frameworks/Python.framework/Versions/Current/bin"
 
 # Delete duplicate PATH components.
 PATH=`
     perl -le'for(split m/:/,shift){push@_,$_ if!$s{$_}++};print join":",@_' "$PATH"
 `;
 export PATH
-
-. django-bash-completion
