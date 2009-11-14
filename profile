@@ -193,10 +193,10 @@ export ALIEN_CODEPRESS_AUTHOR=1
 export MODULE_BUILD_DEBIAN_AUTHOR=1
 export XWA_AUTHOR="Ask Solem"
 export XWA_AUTHOR_EMAIL="askh@opera.com"
-export MACOSX_DEPLOYMENT_TARGET=10.5
+export MACOSX_DEPLOYMENT_TARGET=10.6
 
 if [ $IS_MAC_OS_X ]; then
-    export MACOSX_DEPLOYMENT_TARGET="10.5"
+    export MACOSX_DEPLOYMENT_TARGET="10.6"
 fi
 
 # PROMPT
@@ -211,7 +211,11 @@ export DEBFULLNAME="Ask Solem"
 
 # ALIASES
 
-alias ls='/opt/local/bin/ls --color -F -h'
+alias ls='/lol/bin/gls --color -F -h'
+alias pipx='pip -E $VIRTUAL_ENV'
+alias P='workon def'
+alias macvim='mvim'
+alias vim='mvim'
 alias psa='ps auxww'
 alias grepi='grep -i'
 alias egrepi='grep -Ei'
@@ -232,7 +236,7 @@ alias svi='svim'
 alias vip='macvim --remote-tab'
 alias pws='gpg --decrypt /opt/void/pwd.gpg'
 alias s='sudo'
-alias pypan='env MACOSX_DEPLOYMENT_TARGET=10.5 easy_install'
+alias pypan='env MACOSX_DEPLOYMENT_TARGET=10.6 easy_install'
 alias psyq='psyqueue'
 alias psyf='psyfetch'
 alias ptv='psyqueue tv'
@@ -316,10 +320,13 @@ export EMAIL="ask@0x61736b.net"
 
 # git stuff
 export GIT_AUTHOR_NAME="Ask Solem"
-export GIT_AUTHOR_EMAIL="askh@modwheel.net"
+export GIT_AUTHOR_EMAIL="askh@opera.com"
 
 # IDA Pro
 export PATH+=":/opt/ida/bin"
+
+export PATH="/lol/bin:/lol/sbin:$PATH"
+export PATH="/usr/local/git/bin:$PATH"
 
 
 ##
@@ -340,3 +347,13 @@ PATH=`
     perl -le'for(split m/:/,shift){push@_,$_ if!$s{$_}++};print join":",@_' "$PATH"
 `;
 export PATH
+
+. virtualenvwrapper_bashrc
+
+if [ -f `brew --prefix`/etc/bash_completion ]; then
+  . `brew --prefix`/etc/bash_completion
+fi
+
+
+# Clojure contrib
+export CLASSPATH=$CLASSPATH:/lol/Cellar/clojure-contrib/HEAD
