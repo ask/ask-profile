@@ -349,6 +349,7 @@ PATH=`
 export PATH
 
 . virtualenvwrapper_bashrc
+export PATH=/Developer/usr/bin:$PATH
 
 if [ -f `brew --prefix`/etc/bash_completion ]; then
   . `brew --prefix`/etc/bash_completion
