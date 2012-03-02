@@ -17,6 +17,10 @@ warn() {
     printf "WARNING: $1\n" >/dev/stderr
 }
 
+pman () {
+    man -t "$1" | open -f -a Preview
+}
+
 unshift_manpath () {
     new_manpath="$1"
     # Add the path into $PATH if it doesn't already exist.
@@ -26,6 +30,7 @@ unshift_manpath () {
     fi
     export MANPATH
 }
+
 unshift_path () {
     new_path="$1"
     # Add the path into $PATH if it doesn't already exist.
@@ -53,8 +58,6 @@ lp_exec_action() {
 
 
 # ### CONFIGURATION
-
-FINK_LOAD_SCRIPT="/sw/bin/init.sh"
 
 BASH_RC="$HOME/.bashrc"
 BASH_PROFILE="$HOME/.bash_profile"
@@ -131,6 +134,7 @@ fi
 lp_exec_action IncludeSystemwideProfile
 lp_exec_action ViMode
 lp_exec_action AddUserBinToPath
+lp_exec_action PyUtils
 
 include_startup_script () {
     script="$1"
@@ -146,7 +150,6 @@ include_startup_script "$BASH_RC"
 # PATH
 
 
-unshift_path "/opt/bleadperl/bin"
 unshift_path "/Developer/Tools"
 unshift_path "/usr/local/bin"
 unshift_path "/usr/local/sbin"
@@ -159,7 +162,6 @@ for bin_dir  in /opt/*/bin;  do
 done
 
 unshift_path "/usr/local/mysql/bin"
-unshift_path "/usr/local/BerkeleyDB.4.5/bin"
 export PATH;
 
 # MANPATH
@@ -177,42 +179,27 @@ done
 
 # Use vim as the man pager.
 export MANPAGER="col -b | view -c 'set ft=man nomod nolist' -" 
-export EDITOR=vim
+export EDITOR='mvim'
 export VISUAL="$EDITOR"
-export CVSROOT=/opt/CVS/
-export MODWHEEL_AUTHOR=1
-export GETOPTLL_AUTHOR=1
-export FILEBSED_AUTHOR=1
-export LIBGBSED_AUTHOR=1
-export MODWHEEL_DBTEST=1
-export CLASS_DOT_MODEL_AUTHOR=1
-export CLASS_DOT_AUTHOR=1
-export CONFIG_PLCONFIG_AUTHOR=1
-export CLASSPLUGINUTIL_AUTHOR=1
-export ALIEN_CODEPRESS_AUTHOR=1
-export MODULE_BUILD_DEBIAN_AUTHOR=1
-export XWA_AUTHOR="Ask Solem"
-export XWA_AUTHOR_EMAIL="askh@opera.com"
-export MACOSX_DEPLOYMENT_TARGET=10.6
 
 if [ $IS_MAC_OS_X ]; then
-    export MACOSX_DEPLOYMENT_TARGET="10.6"
+    export MACOSX_DEPLOYMENT_TARGET="10.7"
 fi
 
 # PROMPT
-source ~/.living-profile/git-completion.bash
 HOSTNAME=$(hostname -s);
 #export PS1='$USER@${HOSTNAME:-localhost}:$PWD\$> '
 export PS1='\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]$(__git_ps1 "(%s)")$> '
 
 # DEBIAN PACKAGE OPTIONS
-export DEBEMAIL="askh@opera.com"
+export DEBEMAIL="ask@celeryproject.org"
 export DEBFULLNAME="Ask Solem"
 
 # ALIASES
 
-alias ls='/lol/bin/gls --color -F -h'
-alias pipx='pip -E $VIRTUAL_ENV'
+alias ls='/usr/local/bin/gls --color -F -h'
+alias pack='ack --python'
+alias pipx='$VIRTUAL_ENV/bin/pip -E $VIRTUAL_ENV'
 alias P='workon def'
 alias macvim='mvim'
 alias vim='mvim'
@@ -228,12 +215,11 @@ alias make..='(cd ../; make)'
 alias lst='ls -t --reverse'
 alias boa='python'
 alias suroot='sudo su -l -'
-alias vim='macvim'
 alias svim='sudo \vim'
 alias sapt='sudo apt-get install'
 alias saps='sudo apt-cache search'
 alias svi='svim'
-alias vip='macvim --remote-tab'
+alias vip='mvim --remote-tab'
 alias pws='gpg --decrypt /opt/void/pwd.gpg'
 alias s='sudo'
 alias pypan='env MACOSX_DEPLOYMENT_TARGET=10.6 easy_install'
@@ -245,13 +231,10 @@ alias pmac='psyqueue mac'
 alias paudio='psyqueue audioiso'
 alias psample='psyqueue samplecd'
 alias lsd='ls -clr | grep $(date "+%Y-%m") | sort -k 6 -r'
+alias ipy='ipython'
+alias cov='nosetests --with-coverage3 --cover3-html'
+alias ackt='ack --ignore-dir=tests/'
 
-
-# MIT Scheme settings.
-export MITSCHEME_LIBRARY_PATH=/opt/local/lib/mit-scheme
-
-
-export PERL5LIB="$PERL5LIB:/opt/devel/my:/opt/devel/core-mods"
 
 # STARTUP EXEC
 
@@ -266,81 +249,110 @@ echo
 
 # ### INITIALIZE ENVIRONMENT
 
-
-# Common LISP
-unshift_path "/opt/lisp/bin"
-
-# git
-unshift_path "/opt/git/bin"
-
 if [ ! $IS_MAC_OS_X ]; then
     export DISPLAY=":0"
 fi
 
 # Development Environment
-LIBPATHS="-L/opt/perl-5.10/lib -L/opt/postgres/lib -L/opt/local/lib -L/opt/mysql/lib -L/sw/lib"
-INCPATHS="-I/opt/local/include -I/opt/postgres/include -I/sw/include -I/opt/mysql/include"
+LIBPATHS="-L/usr/local/lib -L/usr/local/mysql/lib"
+INCPATHS="-I/usr/local/include -I/usr/local/mysql/include"
 
-#/Library/Frameworks/Python.framework/Versions/Current/bin" BerkeleyDB
-LIBPATHS="-L/opt/BerkeleyDB/lib $LIBPATHS"
-INCPATHS="-I/opt/BerkeleyDB/include $INCPATHS"
-export PATH="/opt/BerkeleyDB/bin:$PATH"
 export LDFLAGS="$LIBPATHS"
-CFLAGS="-Os -sse3 -ssse3 -mtune=nocona"
+CFLAGS="-Os -sse3 -ssse3"
 export CFLAGS="$LIBPATHS $INCPATHS $CFLAGS"
-
-## PostgreSQL
-export PGDATA="/opt/postgres/data"
-
-# MzScheme
-export PATH="/opt/mzscheme/bin:$PATH"
-export LDFLAGS="-L/opt/mzscheme/lib $LDFLAGS"
-export CFLAGS="-I/opt/mzscheme/include $CFLAGS"
-
-# Glascow Haskell Compiler
-export PATH="/opt/haskell/bin:$PATH"
-
-# MacTex
-export PATH="/opt/mactex/bin:$PATH"
-
-# Git
-export PATH="/opt/git/bin:$PATH"
-#
 
 if [ $IS_MAC_OS_X ]; then
     # Build programs for these architectures
     export ARCHFLAGS='-arch i386 -arch x86_64'
 fi
 
-
-# ### Currently selected Perl first!
-unshift_path "/opt/perl/bin/perl"
-
-export EMAIL="ask@0x61736b.net"
+export EMAIL="ask@celeryproject.org"
 
 # git stuff
 export GIT_AUTHOR_NAME="Ask Solem"
-export GIT_AUTHOR_EMAIL="askh@opera.com"
+export GIT_AUTHOR_EMAIL="ask@celeryproject.org"
+export GIT_EDITOR="/Applications/MacVim.app/Contents/MacOS/Vim -g -f"
 
 # IDA Pro
 export PATH+=":/opt/ida/bin"
 
-export PATH="/lol/bin:/lol/sbin:$PATH"
-export PATH="/usr/local/git/bin:$PATH"
-
-
-##
-# DELUXE-USR-LOCAL-BIN-INSERT
-# (do not remove this comment)
-##
-#echo $PATH | grep -q -s "/usr/local/bin"
-#if [ $? -eq 1 ] ; then
-#    PATH=$PATH:/usr/local/bin
-#    export PATH
-#fi
+export PATH="/usr/local/bin:/usr/local/sbin:$PATH"
 
 # Python
 unshift_path "/Library/Frameworks/Python.framework/Versions/Current/bin"
+unshift_path "/opt/rabbitmq/sbin"
+
+if [ -f `brew --prefix`/etc/bash_completion ]; then
+  . `brew --prefix`/etc/bash_completion
+fi
+
+# pip bash completion start
+_pip_completion()
+{
+    COMPREPLY=( $( COMP_WORDS="${COMP_WORDS[*]}" \
+                   COMP_CWORD=$COMP_CWORD \
+                   PIP_AUTO_COMPLETE=1 $1 ) )
+}
+complete -o default -F _pip_completion pip
+# pip bash completion end
+
+
+PATH="~/.gem/ruby/1.8/bin/:${PATH}"
+export PATH
+
+
+# virtualenvwrapper
+source /usr/local/bin/virtualenvwrapper.sh
+
+dapp() {
+    cd /opt/devel/django-celery/examples/demoproject;
+    python manage.py $*
+}
+
+
+capp() {
+    cd /opt/devel/demoapp
+    $*
+}
+
+cpy() {
+    (capp bpython);
+}
+
+celerytop () {
+    watch -n 0.1 'ps auxww | grep "\[celery" | grep -Ev "grep|watch"'
+}
+
+
+
+alias g='gh'
+# Autocomplete for 'g' as well
+complete -o default -o nospace -F _git g
+complete -o default -o nospace -F _git gh
+
+
+# Setting PATH for Python 2.7
+# The orginal version is saved in .profile.pysave
+PATH="/Library/Frameworks/Python.framework/Versions/2.7/bin:${PATH}"
+export PATH
+
+
+PATH="/opt/devel/Rabbit/rabbitmq-server/scripts:${PATH}"
+export PATH
+
+
+start_rabbit () {
+    (cd /opt/devel/Rabbit/rabbitmq-server/;
+     sudo ./scripts/rabbitmq-server -detached)
+}
+
+
+# Setting PATH for Python 3.2
+# The orginal version is saved in .profile.pysave
+PATH="/Library/Frameworks/Python.framework/Versions/3.2/bin:${PATH}"
+export PATH
+
+PATH="/usr/local/bin:/usr/local/sbin:$PATH"
 
 # Delete duplicate PATH components.
 PATH=`
@@ -348,13 +360,7 @@ PATH=`
 `;
 export PATH
 
-. virtualenvwrapper_bashrc
-export PATH=/Developer/usr/bin:$PATH
 
-if [ -f `brew --prefix`/etc/bash_completion ]; then
-  . `brew --prefix`/etc/bash_completion
+if [ -f ~/.localenv ]; then
+    . ~/.localenv
 fi
-
-
-# Clojure contrib
-export CLASSPATH=$CLASSPATH:/lol/Cellar/clojure-contrib/HEAD

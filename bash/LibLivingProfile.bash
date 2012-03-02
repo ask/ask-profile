@@ -56,7 +56,7 @@ skip-last () {
     result=$null
     length=$(array-length $*)
     cur_element=0
-     
+
     for v in $*; do
         [ $cur_element -lt $length ] && result+="$IFS$v"
         cur_element=$(($cur_element + 1))
@@ -71,7 +71,7 @@ new-array-from-pos () {
     array=$(skip-first $*)
     length=$(array-length $array)
     cur_element=0
-    
+
     for v in $array; do
         [ $cur_element -ge $pos ] && result+="$IFS$v"
         cur_element=$(($cur_element + 1))
@@ -79,7 +79,7 @@ new-array-from-pos () {
 
     return-value $result
 }
-    
+
 for-each () {
     array="$1"
     codetext=$(new-array-from-pos $(array-length $array) $*)
@@ -106,7 +106,7 @@ for-each () {
 join-array () {
     return-value $(for-each "$*" 'return-value "$IFS%s"')
 }
-    
+
 
 opt-on  () {
     for-each "$*" set -o %s
@@ -140,32 +140,22 @@ __ () {
     preaction-then-postaction-if-extra-args debug-on debug-off "$*"
 }
 
-    
 
-
-#echo "$1" | perl -ne'exit m{^\d+$} ? 0 : 1'
 is-integer () {
     perl -e'exit 1 if $ARGV[-1] !~ m{^\d+$}' -- "$1"
     return-value ${?:+$([ $? -eq 0 ] && return-value 1)}
 }
 
 bullet () {
-    #crest="\*"
-    #level=$null
-    #[ $(is-integer $1) ] && level=$1  && skip_first=true
-    #[ "$1" == "+error" ] && crest='!' && skip_first=true
-    #[ ${level:-0} != 0 ] && crest='-'
-    #vals=$((test $skip_first && return-value `skip-first $*`) || return-value $*)
-    #return-value $(join-array $crest $vals);
     return-value "[x]" $*
 }
-   
+
 log-error () {
     bullet +error "ERROR: $*" > /dev/stderr
 }
 
 log-result () {
-    write-stderr -n ${*:+$(bullet 0 $*...)} 
+    write-stderr -n ${*:+$(bullet 0 $*...)}
 }
 
 result-ok () {
