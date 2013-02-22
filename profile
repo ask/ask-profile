@@ -307,3 +307,18 @@ PATH=`
     perl -le'for(split m/:/,shift){push@_,$_ if!$s{$_}++};print join":",@_' "$PATH"
 `;
 export PATH
+
+
+celery_stable () {
+    cd /opt/devel/py-amqp; git checkout 1.0; python setup.py develop
+    cd /opt/devel/kombu; git checkout 2.5; python setup.py develop
+    cd /opt/devel/billiard; git checkout 2.7; python setup.py install
+    cd /opt/devel/celery; git checkout 3.0; python setup.py develop
+}
+
+celery_master () {
+    cd /opt/devel/py-amqp; git checkout master; python setup.py develop
+    cd /opt/devel/kombu; git checkout master; python setup.py develop
+    cd /opt/devel/billiard; git checkout master; python setup.py install
+    cd /opt/devel/celery; git checkout master; python setup.py develop
+}
