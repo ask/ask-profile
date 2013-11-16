@@ -181,7 +181,7 @@ export EDITOR='mvim'
 export VISUAL="$EDITOR"
 
 if [ $IS_MAC_OS_X ]; then
-    export MACOSX_DEPLOYMENT_TARGET="10.8"
+    export MACOSX_DEPLOYMENT_TARGET="10.9"
 fi
 
 # PROMPT
@@ -221,6 +221,8 @@ alias lsd='ls -clr | grep $(date "+%Y-%m") | sort -k 6 -r'
 alias ipy='ipython'
 alias cov='nosetests --with-coverage3 --cover3-html'
 alias ackt='ack --ignore-dir=tests/'
+alias ackp='ack --py'
+alias ackpt='ackt --py'
 
 
 # STARTUP EXEC
@@ -295,12 +297,19 @@ fi
 # Setting PATH for Ruby 1.8
 PATH="/System/Library/Frameworks/Ruby.framework/Versions/1.8/usr/bin:${PATH}"
 
+# Jython
+PATH="/opt/jython/bin:${PATH}"
+
+# Ruby
+PATH="/usr/local/opt/ruby/bin:${PATH}"
+
 # Setting PATH for Python 2.7
 # The orginal version is saved in .profile.pysave
 PATH="/Library/Frameworks/Python.framework/Versions/2.7/bin:${PATH}"
 # Setting PATH for Python 3.3
 # The orginal version is saved in .profile.pysave
 PATH="/Library/Frameworks/Python.framework/Versions/3.3/bin:${PATH}"
+
 
 # Delete duplicate PATH components.
 PATH=`
@@ -309,16 +318,63 @@ PATH=`
 export PATH
 
 
+_py_install_branch() {
+    py=$1
+    repo=$2
+    branch=$3
+    action=$4
+    (cd "$repo"; git checkout "$branch"; rm -rf build/; $py setup.py $action)
+}
+
+celery_30 () {
+    py=${1:-"python"}
+    action=${2:-"develop"}
+    echo "Using $py -> $action"
+    _py_install_branch "$py" /opt/devel/py-amqp 1.0 "$action" && \
+        _py_install_branch "$py" /opt/devel/kombu 2.5 "$action" && \
+        _py_install_branch "$py" /opt/devel/billiard 2.7 install && \
+        _py_install_branch "$py" /opt/devel/celery 3.0 "$action" && \
+        _py_install_branch "$py" /opt/devel/django-celery 3.0 "$action"
+}
+
 celery_stable () {
-    cd /opt/devel/py-amqp; git checkout 1.0; python setup.py develop
-    cd /opt/devel/kombu; git checkout 2.5; python setup.py develop
-    cd /opt/devel/billiard; git checkout 2.7; python setup.py install
-    cd /opt/devel/celery; git checkout 3.0; python setup.py develop
+    py=${1:-"python"}
+    action=${2:-"develop"}
+    echo "Using $py -> $action"
+    _py_install_branch "$py" /opt/devel/py-amqp 1.3 "$action" && \
+        _py_install_branch "$py" /opt/devel/kombu 3.0 "$action" && \
+        _py_install_branch "$py" /opt/devel/billiard 3.3 install && \
+        _py_install_branch "$py" /opt/devel/celery 3.1 "$action" && \
+        _py_install_branch "$py" /opt/devel/django-celery 3.1 "$action"
 }
 
 celery_master () {
-    cd /opt/devel/py-amqp; git checkout master; python setup.py develop
-    cd /opt/devel/kombu; git checkout master; python setup.py develop
-    cd /opt/devel/billiard; git checkout master; python setup.py install
-    cd /opt/devel/celery; git checkout master; python setup.py develop
+    py=${1:-"python"}
+    action=${2:-"develop"}
+    echo "Using $py -> $action"
+    _py_install_branch "$py" /opt/devel/py-amqp 2.0-devel "$action" && \
+        _py_install_branch "$py" /opt/devel/kombu 4.0-devel "$action" && \
+        _py_install_branch "$py" /opt/devel/billiard 3.4-devel "$action" && \
+        _py_install_branch "$py" /opt/devel/celery 3.2-devel "$action" && \
+        _py_install_branch "$py" /opt/devel/django-celery master "$action"
 }
+
+
+
+pidof () {
+    ps auxww | grep "$*" | grep -v grep | awk '{print $2}'
+}
+
+export PATH="/opt/pypy/bin:${PATH}"
+
+stty pass8
+#bind 'set convert-meta off'
+#bind 'set meta-flag on'
+#bind 'set output-meta on'
+
+#export LANG='en_US.UTF-8'
+#export LANGUAGE=$LANG
+#export LC_ALL=$LANG
+
+alias cstress='cd /opt/devel/celery/funtests/stress'
+
